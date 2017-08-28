@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="Scripts/angular.min.js"></script>
+    <script src="Scripts/DatePicker/WdatePicker.js"></script>
+    <style>
+        table, th, td {
+            border: 1px solid grey;
+            border-collapse: collapse;
+            padding: 5px;
+        }
+
+            table tr:nth-child(odd) {
+                background-color: #f1f1f1;
+            }
+
+            table tr:nth-child(even) {
+                background-color: #ffffff;
+            }
+    </style>
+</head>
+<body>
+    <div ng-app="myApp" ng-controller="customersCtrl">
+        <input type="text" ng-model="strt" value="" readonly date-picker class="Wdate">
+        <input type="text" ng-model="end" value="" readonly date-picker class="Wdate">
+        <select ng-model="dept">
+            <option value="全部科室">全部科室
+            <option value="中医科">中医科
+            <option value="呼吸内科">呼吸内科
+            <option value="康复科">康复科
+            <option value="综合病房">综合病房
+            <option value="普通外一科">普通外一科
+            <option value="骨二科">骨二科
+            <option value="泌尿外科">泌尿外科
+            <option value="妇科">妇科
+            <option value="肾内科">肾内科
+            <option value="普通外二科">普通外二科
+            <option value="耳鼻喉科">耳鼻喉科
+            <option value="脑外科">脑外科
+            <option value="新生儿科">新生儿科
+            <option value="产科">产科
+            <option value="消化内科">消化内科
+            <option value="普儿科">普儿科
+            <option value="ICU病房">ICU病房
+            <option value="神经内科">神经内科
+            <option value="肿瘤科">肿瘤科
+            <option value="骨一科">骨一科
+            <option value="感染二科">感染二科
+            <option value="口腔科">口腔科
+            <option value="心血管内科">心血管内科
+            <option value="眼科">眼科
+            <option value="感染一科">感染一科
+            <option value="皮肤科">皮肤科
+        </select>
+        <button ng-click="request()" ng-disabled="loading">查询</button><span ng-show="loading">正在载入...</span>
+
+        <table>
+            <tr ng-repeat="x in names" ng-switch on="$index % 2">
+                <td ng-switch-when="0">{{ names[$index].xiangmuming }}</td>
+                <td ng-switch-when="0">{{ names[$index].xiangmuzhi }}</td>
+                <td ng-switch-when="0">{{ names[$index+1].xiangmuming }}</td>
+                <td ng-switch-when="0">{{ names[$index+1].xiangmuzhi }}</td>
+            </tr>
+        </table>
+
+
+    </div>
+
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('customersCtrl', function ($scope, $http) {
+            $scope.request = function () {
+                $scope.loading = true;
+                $http.get("yiliaotongji.aspx", { params: { "strt": $scope.strt, "end": $scope.end, "dept": $scope.dept } })
+                    .then(function (response) { $scope.names = response.data; }).finally(function () {
+                        $scope.loading = false;
+                    });
+            };
+            $scope.dept = "全部科室";
+        });
+        app.directive('datePicker', function () {
+            return {
+                restrict: 'A',
+                require: 'ngModel',
+                scope: {
+                    minDate: '@',
+                },
+                link: function (scope, element, attr, ngModel) {
+                    element.val(ngModel.$viewValue);
+                    function onpicking(dp) {
+                        var date = dp.cal.getNewDateStr();
+                        scope.$apply(function () {
+                            ngModel.$setViewValue(date);
+                        });
+                    }
+                    element.bind('click', function () {
+                        WdatePicker({
+                            onpicking: onpicking,
+                            dateFmt: 'yyyy-MM-dd'
+                        })
+                    });
+                }
+            };
+        });
+    </script>
+</body>
+</html>

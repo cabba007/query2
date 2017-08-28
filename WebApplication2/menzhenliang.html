@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="Scripts/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="Scripts/DatePicker/WdatePicker.js"></script>
+    <script type="text/javascript" src="Scripts/common.js"></script>
+    <style type="text/css">
+        #table1 {
+            font-family: verdana,arial,sans-serif;
+            font-size: 12px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+        }
+
+            #table1 th {
+                border-width: 1px;
+                padding: 2px;
+                border-style: solid;
+                border-color: #666666;
+                background-color: #ececff;
+            }
+
+            #table1 td {
+                border-width: 1px;
+                padding: 2px;
+                border-style: solid;
+                border-color: #666666;
+                background-color: #ffffff;
+            }
+    </style>
+
+
+
+    <title></title>
+</head>
+<body>
+
+    <div>
+        <span>从</span><input id="date1" type='text' onclick="WdatePicker()" /><span>到</span><input id="date2" type='text' onclick="WdatePicker()" />
+        <button id="btnOK1">查询区间门诊量</button>
+        <label id="mzl"></label>
+    </div><hr />
+    <div>
+        <input id="date" type='text' onclick="WdatePicker()" />
+        <select name="dept">
+            <option value="全部科室" selected="selected">全部科室</option>
+            <option value="中医科门诊">中医科门诊</option>
+            <option value="外科门诊">外科门诊</option>
+            <option value="内科门诊">内科门诊</option>
+            <option value="口腔科门诊">口腔科门诊</option>
+            <option value="儿科门诊">儿科门诊</option>
+            <option value="妇科门诊">妇科门诊</option>
+            <option value="皮肤科门诊">皮肤科门诊</option>
+            <option value="耳鼻喉科门诊">耳鼻喉科门诊</option>
+            <option value="眼科门诊">眼科门诊</option>
+            <option value="急诊内科门诊">急诊内科门诊</option>
+            <option value="康复科门诊">康复科门诊</option>
+            <option value="二门诊眼科">二门诊眼科</option>
+            <option value="二门诊内科">二门诊内科</option>
+            <option value="二门诊耳鼻喉科">二门诊耳鼻喉科</option>
+            <option value="二门诊儿科">二门诊儿科</option>
+            <option value="感染科门诊">感染科门诊</option>
+            <option value="二门诊皮肤科">二门诊皮肤科</option>
+            <option value="二门诊妇科">二门诊妇科</option>
+            <option value="二门诊中医骨伤科">二门诊中医骨伤科</option>
+            <option value="产科门诊">产科门诊</option>
+            <option value="二门诊外科">二门诊外科</option>
+            <option value="二门诊口腔科">二门诊口腔科</option>
+            <option value="体检中心">体检中心</option>
+            <option value="二门诊康复科">二门诊康复科</option>
+            <option value="急诊科门诊">急诊科门诊</option>
+            <option value="急诊儿科门诊">急诊儿科门诊</option>
+            <option value="急诊外科门诊">急诊外科门诊</option>
+            <option value="内二科门诊">内二科门诊</option>
+            <option value="中医疼痛科门诊">中医疼痛科门诊</option>
+            <option value="中医骨伤科门诊">中医骨伤科门诊</option>
+            <option value="中医痔瘘科门诊">中医痔瘘科门诊</option>
+            <option value="门诊换药室">门诊换药室</option>
+            <option value="外五科门诊">外五科门诊</option>
+            <option value="中医内科门诊">中医内科门诊</option>
+            <option value="PICC门诊">PICC门诊</option>
+        </select>
+        <button id="btnOK">查询单日分时人次</button>
+        <table id="table1" style="float:right;margin-right:300px;"></table>
+        <div id="main" style="width: 1000px; height: 500px;"></div>
+    </div>
+    <hr />
+    <p>备注：查询需要门诊办工作人员权限</p>
+    <script type="text/javascript">var myChart = echarts.init(document.getElementById('main')); myChart.setOption({ title: { text: '' }, tooltip: {}, color: ['#4b5cc4'], legend: { data: [] }, xAxis: { data: [] }, yAxis: {}, series: [{ name: '时间:人次', type: 'bar', data: [], itemStyle: { normal: { label: { show: true, position: 'top' } } }, }] }); $(function () { $("#btnOK").click(function () { if (!isDate($("#date").val())) return false; $.ajax({ type: "Get", url: "menzhenliang.aspx", data: { 'type': '1', 'date': $("#date").val(), 'dept': $("select[name='dept'] option:selected").val() }, contentType: "application/json; charset=utf-8", dataType: "json", success: function (data) { var xax = []; var yax = []; for (var o in data) { console.log(data[o]); xax.push(data[o].SHIJIAN); console.log(data[o].SHIJIAN); yax.push(data[o].JIUZHENRENCI) } myChart.setOption({ title: { text: $("#date").val() + $("select[name='dept'] option:selected").val() + '分时门诊量' }, xAxis: { data: xax }, series: [{ data: yax }] }); var htmls = ['<table>']; var tot = 0; htmls.push('<tr><th>时间</th><th>人次</th></tr>'); for (var i = 0, L = xax.length; i < L; i++) { htmls.push('<tr>'); htmls.push('<td>' + xax[i] + '</td><td>' + yax[i] + '</td>'); htmls.push('</tr>'); tot += parseInt(yax[i]) } htmls.push('<tr><th>总计</th><th>' + tot.toString() + '</th></tr></table>'); $('#table1').html(htmls.join('')) }, error: function (err) { alert(err) } }); return false }); $("#btnOK1").click(function () { if (!isDate($("#date1").val()) || !isDate($("#date2").val())) return false; $.ajax({ type: "Get", url: "menzhenliang.aspx", data: { 'type': '2', 'date1': $("#date1").val(), 'date2': $("#date2").val() }, contentType: "application/json; charset=utf-8", dataType: "text", success: function (data) { $("#mzl").text(data) }, error: function (err) { alert(err) } }); return false }) }); function isDate(dateString) { if (dateString.trim() == "") return false; var r = dateString.match(/^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/); if (r == null) { alert("请输入格式正确的日期\n\r日期格式：yyyy-mm-dd\n\r例  如：2008-08-08\n\r"); return false } var d = new Date(r[1], r[3] - 1, r[4]); var num = (d.getFullYear() == r[1] && (d.getMonth() + 1) == r[3] && d.getDate() == r[4]); if (num == 0) { alert("请输入格式正确的日期\n\r日期格式：yyyy-mm-dd\n\r例  如：2008-08-08\n\r") } return (num != 0) }</script>
+</body>
+</html>
